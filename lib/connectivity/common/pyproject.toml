@@ -1,0 +1,45 @@
+[tool.poetry]
+name = "demo.connectivity.common"
+version = "1.0.0"
+description = "Demo Connectivity - Common"
+authors = ["William Cowan"]
+packages = [{ include = "demo", from = "src" }]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+asyncio = "^3.4.3"
+simplejson = "^3.19.1"
+websockets = "^11.0.2"
+
+[tool.poetry.dev-dependencies]
+black = "^22.10.0"
+isort = "^5.10.1"
+pytest = "^7.2"
+pytest-asyncio = "^0.19.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 120
+include = '\.pyi?$'
+target-version = ['py36']
+fast = true
+exclude = '''
+[
+(
+    /(
+        \.git
+        | \.pytest_cache
+        | python-venv
+        | \.venv
+        | build
+        | dist
+        \ \.tox
+    ))
+]
+'''
+
+[tool.isort]
+profile = "black"

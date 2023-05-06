@@ -1,0 +1,4 @@
+http_uri: https://api.binance.com/api/v3
+ws_uri: wss://stream.binance.com:9443/ws
+symbol: BTCUSDT
+depth: 100

@@ -1,0 +1,49 @@
+[tool.poetry]
+name = "demo.connectivity.binance-md"
+version = "1.0.0"
+description = "Byte Trading Binance MD Adaptor"
+authors = ["William Cowan"]
+packages = [{ include = "demo", from = "src" }]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+"demo.connectivity.common" = { path = "../../../lib/connectivity/common", develop = true }
+asyncio = "^3.4.3"
+pyyaml = "^6.0"
+httpx = "^0.24.0"
+
+[tool.poetry.dev-dependencies]
+black = "^22.10.0"
+isort = "^5.10.1"
+pytest = "^7.2"
+pytest-asyncio = "^0.19.0"
+
+[tool.poetry.scripts]
+binance-md = "demo.connectivity.binance_md.__main__:main"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 120
+include = '\.pyi?$'
+target-version = ['py36']
+fast = true
+exclude = '''
+[
+(
+    /(
+        \.git
+        | \.pytest_cache
+        | python-venv
+        | \.venv
+        | build
+        | dist
+        \ \.tox
+    ))
+]
+'''
+
+[tool.isort]
+profile = "black"
