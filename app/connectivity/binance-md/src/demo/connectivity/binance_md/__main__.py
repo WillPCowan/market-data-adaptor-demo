@@ -12,7 +12,8 @@ import demo.connectivity.common.order_book_l2 as order_book_l2
 import demo.connectivity.common.websocket_feed as websocket_feed
 
 import demo.connectivity.binance_md.utils as utils
-import demo.connectivity.binance_md.response as response
+import demo.connectivity.binance_md.websocket_event_handler as websocket_event_handler
+import demo.connectivity.binance_md.market_data_handler as market_data_handler
 import demo.connectivity.binance_md.config as config
 import demo.connectivity.binance_md.order_book_sequencer as order_book_sequencer
 
@@ -34,19 +35,20 @@ async def main_async():
     order_book = order_book_l2.OrderBookL2()
     order_book_print_interval = 2
 
-    # TODO: improve design by having ResponseHandler > {Sequencer, ...} > BookDataMapper
-    # so that filtering and asimilation of events occurs in ResponseHandler, 
-
     # TODO: implement hibernation mode for when binance servers irresponsive
 
-    response_handler = response.ResponseHandler(
+    md_handler = market_data_handler.MarketDataHandler(
         symbol=app_config.symbol,
         order_book=order_book,
     )
 
     ob_sequencer = order_book_sequencer.BinanceOrderBookSequencer(
-        handle_snapshot=response_handler.handle_order_book_snapshot,
-        handle_update=response_handler.handle_order_book_update,
+        handle_snapshot=md_handler.handle_snapshot,
+        handle_update=md_handler.handle_update,
+    )
+
+    ws_event_handler = websocket_event_handler.WebSocketEventHandler(
+        order_book_sequencer=ob_sequencer,
     )
 
     async with websocket_feed.WebSocketFeed(uri=app_config.ws_uri) as wsf:
@@ -66,7 +68,7 @@ async def main_async():
         try:
             group = asyncio.gather(
                 wsf.stream(
-                    handle_event_async=ob_sequencer.sequence_update,
+                    handle_event=ws_event_handler.handle_event,
                     stream_init_func_async=stream_init_func,
                 ),
                 on_stream_start(),

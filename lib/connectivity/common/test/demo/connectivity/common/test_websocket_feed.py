@@ -1,6 +1,6 @@
 import json
 import pytest
-from unittest.mock import AsyncMock, MagicMock, call
+from unittest.mock import AsyncMock, MagicMock, Mock, call
 
 from websockets.exceptions import ConnectionClosed
 from demo.connectivity.common.websocket_feed import WebSocketFeed, WEBSOCKET_TRANSIENT_ERRORS
@@ -40,7 +40,7 @@ async def test_send_message(websocket_feed, mock_websockets_connect):
 
 @pytest.mark.asyncio
 async def test_stream_recover_from_out_of_sequence_error(websocket_feed, mock_websockets_connect):
-    handle_event_async = AsyncMock()
+    handle_event = Mock()
 
     async def mock_stream_init_func_async():
         pass
@@ -51,9 +51,9 @@ async def test_stream_recover_from_out_of_sequence_error(websocket_feed, mock_we
     websocket_feed._reconnect = AsyncMock()
 
     with pytest.raises(StopAsyncIteration):
-        await websocket_feed.stream(handle_event_async, mock_stream_init_func_async)
+        await websocket_feed.stream(handle_event, mock_stream_init_func_async)
 
-    handle_event_async.assert_has_calls([call(json.loads("{\"message\": \"message1\"}")), call(json.loads("{\"message\": \"message2\"}")), call(json.loads("{\"message\": \"message3\"}")), call(json.loads("{\"message\": \"message4\"}"))])
+    handle_event.assert_has_calls([call(json.loads("{\"message\": \"message1\"}")), call(json.loads("{\"message\": \"message2\"}")), call(json.loads("{\"message\": \"message3\"}")), call(json.loads("{\"message\": \"message4\"}"))])
     websocket_feed._reconnect.assert_called_once()
 
 @pytest.mark.asyncio

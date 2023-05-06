@@ -5,7 +5,7 @@ from unittest.mock import Mock
 import pytest
 from demo.connectivity.common.order_book_l2 import Order, OrderBookL2
 
-from demo.connectivity.binance_md.response_handler import WebSocketEventHandler, Side
+from demo.connectivity.binance_md.market_data_handler import MarketDataHandler
 
 
 class SnapshotTestCase:
@@ -27,8 +27,8 @@ def order_book():
 
 
 @pytest.fixture
-def response_handler(order_book):
-    return WebSocketEventHandler("BNBBTC", order_book)
+def market_data_handler(order_book):
+    return MarketDataHandler("BNBBTC", order_book)
 
 
 def _make_order_book_snapshot_test_cases() -> List[SnapshotTestCase]:
@@ -85,15 +85,15 @@ def _make_order_book_update_test_cases() -> List[UpdateTestCase]:
 
 
 @pytest.mark.parametrize("test_case", _make_order_book_snapshot_test_cases())
-def test_handle_order_book_snapshot(test_case, response_handler, order_book):
-    response_handler.handle_order_book_snapshot(test_case.snapshot)
+def test_handle_snapshot(test_case, market_data_handler, order_book):
+    market_data_handler.handle_snapshot(test_case.snapshot)
 
     assert order_book._bids == test_case.expected_bids
     assert order_book._asks == test_case.expected_asks
 
 
 @pytest.mark.parametrize("test_case", _make_order_book_update_test_cases())
-def test_handle_order_book_update(test_case, response_handler, order_book):
+def test_handle_update(test_case, market_data_handler, order_book):
     snapshot = {
         "lastUpdateId": 2731179239,
         "bids": [
@@ -106,9 +106,9 @@ def test_handle_order_book_update(test_case, response_handler, order_book):
         ],
     }
 
-    response_handler.handle_order_book_snapshot(snapshot)
+    market_data_handler.handle_snapshot(snapshot)
 
-    response_handler.handle_order_book_update(test_case.update)
+    market_data_handler.handle_update(test_case.update)
 
     assert order_book._bids == test_case.expected_bids
     assert order_book._asks == test_case.expected_asks

@@ -30,7 +30,7 @@ class BinanceOrderBookSequencer():
 
         self._update_queue: collections.deque[Dict[str, Any]] = collections.deque()
 
-    async def sequence_update(self, data: Dict[str, Any]) -> None:
+    def sequence_update(self, data: Dict[str, Any]) -> None:
         if self._filter_out_event(data):
             return
         self.sequence_update_func(data)

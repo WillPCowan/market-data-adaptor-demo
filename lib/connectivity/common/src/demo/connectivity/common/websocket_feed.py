@@ -68,7 +68,7 @@ class WebSocketFeed:
     async def send_message(self, message: str) -> None:
         await self._socket.send(message)
 
-    async def stream(self, handle_event_async: Callable[[str], None], stream_init_func_async: Optional[Callable[[str], None]] = None):
+    async def stream(self, handle_event: Callable[[str], None], stream_init_func_async: Optional[Callable[[str], None]] = None):
         # TODO: retry functionality to go in decorator
         logger.info(f"Starting websocket stream for {self._uri}")
         while True:
@@ -79,7 +79,7 @@ class WebSocketFeed:
                 logger.info("Starting websocket stream")
                 while True:
                     message = await self._socket.recv()
-                    await handle_event_async(self.transform(message))
+                    handle_event(self.transform(message))
             except WEBSOCKET_TRANSIENT_ERRORS as e:
                 logger.info(
                     f"Websocket connection failed. This is not fatal, so connection will be retried. Error: {e} {traceback.print_exc()}"
